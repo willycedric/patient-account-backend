@@ -52,7 +52,7 @@ exports.put = function(req, res, next) {
 
 exports.post = function(req, res, next) {
   var newUser = new User(req.body);
-
+  console.log(newUser);
   newUser.save(function(err, user) {
     if(err) { return next(err);}
     res.json({user: user});
