@@ -5,9 +5,12 @@ var logger = require('./logger');
 logger.log('Seeding the Database');
 
 var users = [
-  {password: 'Jimmylo', birthDate: 'test'},
-  {password: 'Xoko', birthDate: 'test'},
-  {password: 'katamon', birthDate: 'test'}
+  {name:'pat101',password: 'vol+2015', birthDate: '12/04/1989'},
+  {name:'pat102',password: 'vol+2016', birthDate: '11/06/1994'},
+  {name:'pat103',password: 'vol+2017', birthDate: '12/03/1993'},
+  {name:'pat104',password: 'vol+2018', birthDate: '12/03/1992'},
+  {name:'pat105',password: 'vol+2019', birthDate: '12/03/1991'},
+  {name:'pat106',password: 'vol+2020', birthDate: '12/03/1990'}
 ];
 
 var createDoc = function(model, doc) {

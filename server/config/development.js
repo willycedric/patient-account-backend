@@ -3,6 +3,6 @@ module.exports = {
   logging: true,
   seed: true,
   db: {
-    url: 'mongodb://localhost/nodeblog'
+    url: 'mongodb://192.168.3.208/nodeblog'
   }
 };

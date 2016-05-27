@@ -17,16 +17,14 @@ exports.params = function(req, res, next, id) {
 };
 
 exports.get = function(req, res, next) {
-  User.find({})
-    .select('-password')
-    .exec()
-    .then(function(users){
-      res.json(users.map(function(user){
-        return user;
-      }));
-    }, function(err){
-      next(err);
+   User.find({}, function(err, users) {
+    var userMap = {};
+
+    users.forEach(function(user) {
+      userMap[user._id] = user;
     });
+    res.send(userMap);  
+  });
 };
 
 exports.getOne = function(req, res, next) {
@@ -52,7 +50,7 @@ exports.put = function(req, res, next) {
 
 exports.post = function(req, res, next) {
   var newUser = new User(req.body);
-  console.log(newUser);
+  //console.log(newUser);
   newUser.save(function(err, user) {
     if(err) { return next(err);}
     res.json({user: user});
@@ -60,10 +58,10 @@ exports.post = function(req, res, next) {
 };
 
 exports.delete = function(req, res, next) {
-  req.user.remove(function(err, removed) {
-    if (err) {
+  User.findByIdAndRemove(req.param('id'), function(err,removed){
+    if(err){
       next(err);
-    } else {
+    }else{
       res.json(removed);
     }
   });
