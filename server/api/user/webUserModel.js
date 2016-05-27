@@ -4,7 +4,8 @@ var Schema = mongoose.Schema;
 var webUserSchema = new Schema({
 	name:{
 		type:String,
-		required:true
+		required:true,
+		unique:true
 	},
   birthDate: {
     type: String,

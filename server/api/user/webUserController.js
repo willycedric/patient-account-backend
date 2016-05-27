@@ -1,18 +1,17 @@
 var User = require('./webUserModel');
 var _ = require('lodash');
 exports.params = function(req, res, next, id) {
-  User.findById(id)
-    .select('-password')
-    .exec()
-    .then(function(user) {
-      if (!user) {
+  console.log('je suis dans la fonction params');
+    User.findById(id,function(err,user) {
+      if(err){
+        next(err);
+      }
+      else if (!user) {
         next(new Error('No user with that id'));
       } else {
         req.user = user;
         next();
       }
-    }, function(err) {
-      next(err);
     });
 };
 
@@ -39,18 +38,25 @@ exports.put = function(req, res, next) {
 
   _.merge(user, update);
 
-  user.save(function(err, saved) {
-    if (err) {
-      next(err);
-    } else {
-      res.json(saved);
-    }
-  })
+  User.findOne({name:user.name},function(err,user){
+      if(err){
+        next(err);
+      }else if(!user){
+          user.save(function(err, saved) {
+            if (err) {
+              next(err);
+            } else {
+              res.json(saved);
+            }
+         });
+      }else{
+
+      }
+  });
 };
 
 exports.post = function(req, res, next) {
   var newUser = new User(req.body);
-  //console.log(newUser);
   newUser.save(function(err, user) {
     if(err) { return next(err);}
     res.json({user: user});
