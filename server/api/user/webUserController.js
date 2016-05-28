@@ -38,10 +38,10 @@ exports.put = function(req, res, next) {
 
   _.merge(user, update);
 
-  User.findOne({name:user.name},function(err,user){
+  User.findOne({name:user.name},function(err,elt){
       if(err){
-        next(err);
-      }else if(!user){
+        return next(err);
+      }else if(!elt){
           user.save(function(err, saved) {
             if (err) {
               next(err);
@@ -57,9 +57,19 @@ exports.put = function(req, res, next) {
 
 exports.post = function(req, res, next) {
   var newUser = new User(req.body);
-  newUser.save(function(err, user) {
-    if(err) { return next(err);}
-    res.json({user: user});
+  User.findOne({name:newUser.name}, function(err, elt){
+    if(err){
+      return next(err);
+    }else if(!elt){
+      newUser.save(function(err,user){
+        if(err){
+          return next(err);
+        }
+        res.json({user:user});
+      })
+    }else{
+
+    }
   });
 };
 
