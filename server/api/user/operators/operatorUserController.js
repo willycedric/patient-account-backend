@@ -1,7 +1,6 @@
-var User = require('./webUserModel');
+var User = require('./operatorUserModel');
 var _ = require('lodash');
 exports.params = function(req, res, next, id) {
-  console.log('je suis dans la fonction params');
     User.findById(id,function(err,user) {
       if(err){
         next(err);

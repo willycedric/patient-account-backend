@@ -1,5 +1,7 @@
 var webUserModel = require('../api/user/web/webUserModel'),
-  mobileUserModel = require('../api/user/mobile/mobileUserModel');
+  mobileUserModel = require('../api/user/mobile/mobileUserModel'),
+  practicianUserModel=require('../api/user/practicians/practicianUserModel'),
+  operatorUserModel=require('../api/user/operators/operatorUserModel');
 var _ = require('lodash');
 var logger = require('./logger');
 
@@ -22,7 +24,22 @@ var mobileUsers = [
   {name:'mob105',password: 'vol+2019', birthDate: '12/03/1991'},
   {name:'mob106',password: 'vol+2020', birthDate: '12/03/1990'}
 ];
-
+var practicianUsers = [
+  {name:'hcp101',password: 'vol+2015', birthDate: '12/04/1989'},
+  {name:'hcp102',password: 'vol+2016', birthDate: '11/06/1994'},
+  {name:'hcp103',password: 'vol+2017', birthDate: '12/03/1993'},
+  {name:'hcp104',password: 'vol+2018', birthDate: '12/03/1992'},
+  {name:'hcp105',password: 'vol+2019', birthDate: '12/03/1991'},
+  {name:'hcp106',password: 'vol+2020', birthDate: '12/03/1990'}
+];
+var operatorUsers = [
+  {name:'op101',password: 'vol+2015', birthDate: '12/04/1989'},
+  {name:'op102',password: 'vol+2016', birthDate: '11/06/1994'},
+  {name:'op103',password: 'vol+2017', birthDate: '12/03/1993'},
+  {name:'op104',password: 'vol+2018', birthDate: '12/03/1992'},
+  {name:'op105',password: 'vol+2019', birthDate: '12/03/1991'},
+  {name:'op106',password: 'vol+2020', birthDate: '12/03/1990'}
+];
 var createDoc = function(model, doc) {
   return new Promise(function(resolve, reject) {
     new model(doc).save(function(err, saved) {
@@ -33,7 +50,7 @@ var createDoc = function(model, doc) {
 
 var cleanDB = function() {
   logger.log('... cleaning the DB');
-  var cleanPromises = [webUserModel,mobileUserModel]
+  var cleanPromises = [webUserModel,mobileUserModel,practicianUserModel,operatorUserModel]
     .map(function(model) {
       return model.remove().exec();
     });
@@ -64,8 +81,34 @@ var createMobileUsers = function(data) {
     });
 };
 
+var createPracticianUsers = function(data) {
+
+  var promises = practicianUsers.map(function(user) {
+    return createDoc(practicianUserModel, user);
+  });
+
+  return Promise.all(promises)
+    .then(function(practicianUsers) {
+      return _.merge({practicianUsers: practicianUsers}, data || {});
+    });
+};
+
+var createOperatorUsers = function(data) {
+
+  var promises = operatorUsers.map(function(user) {
+    return createDoc(operatorUserModel, user);
+  });
+
+  return Promise.all(promises)
+    .then(function(operatorUsers) {
+      return _.merge({operatorUsers: operatorUsers}, data || {});
+    });
+};
+
 cleanDB()
+  .then(createOperatorUsers)
   .then(createUsers)
   .then(createMobileUsers)
+  .then(createPracticianUsers)
   .then(logger.log.bind(logger))
   .catch(logger.log.bind(logger));

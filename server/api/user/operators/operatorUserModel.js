@@ -11,6 +11,10 @@ var webUserSchema = new Schema({
     type: String,
     required: true
   },
+  role:{
+    type:String,
+    default:'agent'
+  },
   password: {
     type: String,
     required: true
@@ -18,4 +22,4 @@ var webUserSchema = new Schema({
   }
   
 });
-module.exports = mongoose.model('webUser', webUserSchema);
+module.exports = mongoose.model('operatorUser', webUserSchema);

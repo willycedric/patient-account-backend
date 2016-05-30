@@ -1,6 +1,6 @@
 var router = require('express').Router();
-var logger = require('../../util/logger');
-var controller = require('./webUserController');
+var logger = require('../../../util/logger');
+var controller = require('./practicianUserController');
 // setup boilerplate route jsut to satisfy a request
 // for building
 router.param('id', controller.params);
