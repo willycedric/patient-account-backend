@@ -1,7 +1,8 @@
 var webUserModel = require('../api/user/web/webUserModel'),
   mobileUserModel = require('../api/user/mobile/mobileUserModel'),
   practicianUserModel=require('../api/user/practicians/practicianUserModel'),
-  operatorUserModel=require('../api/user/operators/operatorUserModel');
+  operatorUserModel=require('../api/user/operators/operatorUserModel'),
+  superUserModel = require('../api/user/superusers/superUserModel');
 var _ = require('lodash');
 var logger = require('./logger');
 
@@ -40,6 +41,14 @@ var operatorUsers = [
   {name:'op105',password: 'vol+2019', birthDate: '12/03/1991'},
   {name:'op106',password: 'vol+2020', birthDate: '12/03/1990'}
 ];
+var superUsers = [
+  {name:'sup01',password: 'vol+2015', birthDate: '12/04/1989'},
+  {name:'sup02',password: 'vol+2016', birthDate: '11/06/1994'},
+  {name:'sup03',password: 'vol+2017', birthDate: '12/03/1993'},
+  {name:'sup04',password: 'vol+2018', birthDate: '12/03/1992'},
+  {name:'sup05',password: 'vol+2019', birthDate: '12/03/1991'},
+  {name:'sup06',password: 'vol+2020', birthDate: '12/03/1990'}
+];
 var createDoc = function(model, doc) {
   return new Promise(function(resolve, reject) {
     new model(doc).save(function(err, saved) {
@@ -50,7 +59,7 @@ var createDoc = function(model, doc) {
 
 var cleanDB = function() {
   logger.log('... cleaning the DB');
-  var cleanPromises = [webUserModel,mobileUserModel,practicianUserModel,operatorUserModel]
+  var cleanPromises = [webUserModel,mobileUserModel,practicianUserModel,operatorUserModel,superUserModel]
     .map(function(model) {
       return model.remove().exec();
     });
@@ -104,11 +113,25 @@ var createOperatorUsers = function(data) {
       return _.merge({operatorUsers: operatorUsers}, data || {});
     });
 };
+var createSuperUsers = function(data) {
+
+  var promises = superUsers.map(function(user) {
+    return createDoc(superUserModel, user);
+  });
+
+  return Promise.all(promises)
+    .then(function(superUsers) {
+      return _.merge({superUsers: superUsers}, data || {});
+    });
+};
 
 cleanDB()
   .then(createOperatorUsers)
   .then(createUsers)
   .then(createMobileUsers)
   .then(createPracticianUsers)
-  .then(logger.log.bind(logger))
+  .then(createSuperUsers);
+
+  /*.then(logger.log.bind(logger))
   .catch(logger.log.bind(logger));
+*/
