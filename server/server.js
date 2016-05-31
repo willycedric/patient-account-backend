@@ -8,6 +8,8 @@ var logger = require('./util/logger');
 require('mongoose').connect(config.db.url);
 if (config.seed) {
   require('./util/seed');
+}else{
+	logger.log('Seeding deactivated ...');
 }
 // setup the app middlware
 require('./middleware/appMiddlware')(app);
