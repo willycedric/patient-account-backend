@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var webUserSchema = new Schema({
+var projectSchema = new Schema({
 	name:{
 		type:String,
 		required:true,
@@ -22,4 +22,4 @@ var webUserSchema = new Schema({
   }
   
 });
-module.exports = mongoose.model('mobileUser', webUserSchema);
+module.exports = mongoose.model('project', projectSchema);

@@ -1,4 +1,4 @@
-var User = require('./operatorUserModel');
+var User = require('./projectModel');
 var _ = require('lodash');
 exports.params = function(req, res, next, id) {
     User.findById(id,function(err,user) {
