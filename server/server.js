@@ -6,7 +6,6 @@ var logger = require('./util/logger');
 //var auth = require('./auth/routes');
 // db.url is different depending on NODE_ENV
 require('mongoose').connect(config.db.url);
-logger.log("Seeding is currently deactivated");
 if (config.seed) {
   require('./util/seed');
 }

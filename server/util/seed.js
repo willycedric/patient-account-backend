@@ -1,54 +1,58 @@
-var webUserModel = require('../api/user/web/webUserModel'),
-  mobileUserModel = require('../api/user/mobile/mobileUserModel'),
-  practicianUserModel=require('../api/user/practicians/practicianUserModel'),
-  operatorUserModel=require('../api/user/operators/operatorUserModel'),
-  superUserModel = require('../api/user/superusers/superUserModel');
+var projectModel = require('../api/projects/projectModel');
 var _ = require('lodash');
 var logger = require('./logger');
 
 logger.log('Seeding the Database');
 
-var webUsers = [
-  {name:'pat101',password: 'vol+2015', birthDate: '12/04/1989'},
-  {name:'pat102',password: 'vol+2016', birthDate: '11/06/1994'},
-  {name:'pat103',password: 'vol+2017', birthDate: '12/03/1993'},
-  {name:'pat104',password: 'vol+2018', birthDate: '12/03/1992'},
-  {name:'pat105',password: 'vol+2019', birthDate: '12/03/1991'},
-  {name:'pat106',password: 'vol+2020', birthDate: '12/03/1990'}
-];
+var projectUsers = [
+        {
+          name:'Redwing',
+          accounts:[
+            {
+              login:"vvredwing+01@gmail.com",
+              password:"vol+2016",
+              dateOfBirth:"12/01/1945",
+              name:"pat01",
+            },
+            {
+              login:"vvredwing+02@gmail.com",
+              password:"vol+2017",
+              dateOfBirth:"12/11/1945",
+              name:"pat02",
+            },
+            {
+              login:"vvredwing+03@gmail.com",
+              password:"vol+2018",
+              dateOfBirth:"12/10/1945",
+              name:"pat03",
+            }
+          ]     
+        },
+         {
+          name:'Diabeo',
+          accounts:[
+            {
+              login:"vvdiabeo+01@gmail.com",
+              password:"vol+2016",
+              dateOfBirth:"12/07/1975",
+              name:"pat11",
+            },
+            {
+              login:"vvdiabeo+02@gmail.com",
+              password:"vol+2017",
+              dateOfBirth:"12/08/1975",
+              name:"pat12",
+            },
+            {
+              login:"vvdiabeo+03@gmail.com",
+              password:"vol+2018",
+              dateOfBirth:"12/09/1975",
+              name:"pat13",
+            }
+          ]     
+        }  
+  ];
 
-var mobileUsers = [
-  {name:'mob101',password: 'vol+2015', birthDate: '12/04/1989'},
-  {name:'mob102',password: 'vol+2016', birthDate: '11/06/1994'},
-  {name:'mob103',password: 'vol+2017', birthDate: '12/03/1993'},
-  {name:'mob104',password: 'vol+2018', birthDate: '12/03/1992'},
-  {name:'mob105',password: 'vol+2019', birthDate: '12/03/1991'},
-  {name:'mob106',password: 'vol+2020', birthDate: '12/03/1990'}
-];
-var practicianUsers = [
-  {name:'hcp101',password: 'vol+2015', birthDate: '12/04/1989'},
-  {name:'hcp102',password: 'vol+2016', birthDate: '11/06/1994'},
-  {name:'hcp103',password: 'vol+2017', birthDate: '12/03/1993'},
-  {name:'hcp104',password: 'vol+2018', birthDate: '12/03/1992'},
-  {name:'hcp105',password: 'vol+2019', birthDate: '12/03/1991'},
-  {name:'hcp106',password: 'vol+2020', birthDate: '12/03/1990'}
-];
-var operatorUsers = [
-  {name:'op101',password: 'vol+2015', birthDate: '12/04/1989'},
-  {name:'op102',password: 'vol+2016', birthDate: '11/06/1994'},
-  {name:'op103',password: 'vol+2017', birthDate: '12/03/1993'},
-  {name:'op104',password: 'vol+2018', birthDate: '12/03/1992'},
-  {name:'op105',password: 'vol+2019', birthDate: '12/03/1991'},
-  {name:'op106',password: 'vol+2020', birthDate: '12/03/1990'}
-];
-var superUsers = [
-  {name:'sup01',password: 'vol+2015', birthDate: '12/04/1989'},
-  {name:'sup02',password: 'vol+2016', birthDate: '11/06/1994'},
-  {name:'sup03',password: 'vol+2017', birthDate: '12/03/1993'},
-  {name:'sup04',password: 'vol+2018', birthDate: '12/03/1992'},
-  {name:'sup05',password: 'vol+2019', birthDate: '12/03/1991'},
-  {name:'sup06',password: 'vol+2020', birthDate: '12/03/1990'}
-];
 var createDoc = function(model, doc) {
   return new Promise(function(resolve, reject) {
     new model(doc).save(function(err, saved) {
@@ -59,79 +63,26 @@ var createDoc = function(model, doc) {
 
 var cleanDB = function() {
   logger.log('... cleaning the DB');
-  var cleanPromises = [webUserModel,mobileUserModel,practicianUserModel,operatorUserModel,superUserModel]
+  var cleanPromises = [projectModel]
     .map(function(model) {
       return model.remove().exec();
     });
   return Promise.all(cleanPromises);
 }
 
-var createUsers = function(data) {
+var createProject = function(data) {
 
-  var promises = webUsers.map(function(user) {
-    return createDoc(webUserModel, user);
+  var promises = projectUsers.map(function(user) {
+    return createDoc(projectModel, user);
   });
 
   return Promise.all(promises)
-    .then(function(webUsers) {
-      return _.merge({webUsers: webUsers}, data || {});
-    });
-};
-
-var createMobileUsers = function(data) {
-
-  var promises = mobileUsers.map(function(user) {
-    return createDoc(mobileUserModel, user);
-  });
-
-  return Promise.all(promises)
-    .then(function(mobileUsers) {
-      return _.merge({mobileUsers: mobileUsers}, data || {});
-    });
-};
-
-var createPracticianUsers = function(data) {
-
-  var promises = practicianUsers.map(function(user) {
-    return createDoc(practicianUserModel, user);
-  });
-
-  return Promise.all(promises)
-    .then(function(practicianUsers) {
-      return _.merge({practicianUsers: practicianUsers}, data || {});
-    });
-};
-
-var createOperatorUsers = function(data) {
-
-  var promises = operatorUsers.map(function(user) {
-    return createDoc(operatorUserModel, user);
-  });
-
-  return Promise.all(promises)
-    .then(function(operatorUsers) {
-      return _.merge({operatorUsers: operatorUsers}, data || {});
-    });
-};
-var createSuperUsers = function(data) {
-
-  var promises = superUsers.map(function(user) {
-    return createDoc(superUserModel, user);
-  });
-
-  return Promise.all(promises)
-    .then(function(superUsers) {
-      return _.merge({superUsers: superUsers}, data || {});
+    .then(function(projectUsers) {
+      return _.merge({projectUsers: projectUsers}, data || {});
     });
 };
 
 cleanDB()
-  .then(createOperatorUsers)
-  .then(createUsers)
-  .then(createMobileUsers)
-  .then(createPracticianUsers)
-  .then(createSuperUsers);
-
-  /*.then(logger.log.bind(logger))
+  .then(createProject)
+  .then(logger.log.bind(logger))
   .catch(logger.log.bind(logger));
-*/
