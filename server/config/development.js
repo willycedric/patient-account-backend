@@ -3,6 +3,7 @@ module.exports = {
   logging: true,
   seed: true,
   db: {
-    url: 'mongodb://localhost/projectAccount'
+    home: 'mongodb://localhost/projectAccount',
+    voluntis:'mongodb://192.168.3.208/projectAccount'
   }
 };
