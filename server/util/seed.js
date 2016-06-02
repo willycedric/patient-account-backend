@@ -12,20 +12,29 @@ var projectUsers = [
               login:"vvredwing+01@gmail.com",
               password:"vol+2016",
               dateOfBirth:"12/01/1945",
-              name:"pat01",
+              name:"pat01"
             },
             {
               login:"vvredwing+02@gmail.com",
               password:"vol+2017",
               dateOfBirth:"12/11/1945",
-              name:"pat02",
+              name:"pat02"
             },
             {
               login:"vvredwing+03@gmail.com",
               password:"vol+2018",
               dateOfBirth:"12/10/1945",
-              name:"pat03",
+              name:"pat03"
+            },
+            {
+              login:"vvredwing+h01@gmail.com",
+              password:"vol+2016",
+              dateOfBirth:"12/13/1945",
+              name:"hcp01",
+              role:"practician"
+
             }
+
           ]     
         },
          {
@@ -35,19 +44,19 @@ var projectUsers = [
               login:"vvdiabeo+01@gmail.com",
               password:"vol+2016",
               dateOfBirth:"12/07/1975",
-              name:"pat11",
+              name:"pat11"
             },
             {
               login:"vvdiabeo+02@gmail.com",
               password:"vol+2017",
               dateOfBirth:"12/08/1975",
-              name:"pat12",
+              name:"pat12"
             },
             {
               login:"vvdiabeo+03@gmail.com",
               password:"vol+2018",
               dateOfBirth:"12/09/1975",
-              name:"pat13",
+              name:"pat13"
             }
           ]     
         },
@@ -58,19 +67,19 @@ var projectUsers = [
               login:"vvwyditac+01@gmail.com",
               password:"vol+2016",
               dateOfBirth:"12/07/1975",
-              name:"pat11",
+              name:"pat11"
             },
             {
               login:"vvwyditac+02@gmail.com",
               password:"vol+2017",
               dateOfBirth:"12/08/1975",
-              name:"pat12",
+              name:"pat12"
             },
             {
               login:"vvwyditac+03@gmail.com",
               password:"vol+2018",
               dateOfBirth:"12/09/1975",
-              name:"pat13",
+              name:"pat13"
             }
           ]     
         }    
