@@ -1,47 +1,51 @@
-var User = require('./projectModel');
+var Project = require('./projectModel');
 var _ = require('lodash');
+var logger = require('../../util/logger');
 exports.params = function(req, res, next, id) {
-    User.findById(id,function(err,user) {
+    logger.log("Params function from the projectController");
+    Project.findById(id,function(err,project) {
       if(err){
         next(err);
       }
-      else if (!user) {
-        next(new Error('No user with that id'));
+      else if (!project) {
+        next(new Error('No project with that id'));
       } else {
-        req.user = user;
+        req.project = project;
         next();
       }
     });
 };
 
 exports.get = function(req, res, next) {
-   User.find({}, function(err, users) {
-    var userMap = {};
+  logger.log('get from the projectController');
+   Project.find({}, function(err, projects) {
+    var projectMap = {};
 
-    users.forEach(function(user) {
-      userMap[user._id] = user;
+    projects.forEach(function(project) {
+      projectMap[project._id] = project;
     });
-    res.send(userMap);  
+    res.send(projectMap);  
   });
 };
 
 exports.getOne = function(req, res, next) {
-  var user = req.user;
-  res.json(user);
+  logger.log("getOne function from the projectController");
+  var project = req.project;
+  res.json(project);
 };
 
 exports.put = function(req, res, next) {
-  var user = req.user;
+  var project = req.project;
+  project.accounts = req.body.accounts;
+  //_.merge(project, update);
+    logger.log(JSON.stringify(project));
 
-  var update = req.body;
-
-  _.merge(user, update);
-
-  User.findOne({name:user.name},function(err,elt){
+  logger.log("Je suis a ce niveau");
+  Project.findOne({name:project.name},function(err,elt){
       if(err){
         return next(err);
-      }else if(!elt){
-          user.save(function(err, saved) {
+      }else if(elt){
+          project.save(function(err, saved) {
             if (err) {
               next(err);
             } else {
@@ -55,16 +59,16 @@ exports.put = function(req, res, next) {
 };
 
 exports.post = function(req, res, next) {
-  var newUser = new User(req.body);
-  User.findOne({name:newUser.name}, function(err, elt){
+  var newProject = new Project(req.body);
+  Project.findOne({name:newProject.name}, function(err, elt){
     if(err){
       return next(err);
     }else if(!elt){
-      newUser.save(function(err,user){
+      newProject.save(function(err,project){
         if(err){
           return next(err);
         }
-        res.json({user:user});
+        res.json({project:project});
       })
     }else{
 
@@ -73,7 +77,7 @@ exports.post = function(req, res, next) {
 };
 
 exports.delete = function(req, res, next) {
-  User.findByIdAndRemove(req.param('id'), function(err,removed){
+  Project.findByIdAndRemove(req.param('id'), function(err,removed){
     if(err){
       next(err);
     }else{
@@ -83,5 +87,5 @@ exports.delete = function(req, res, next) {
 };
 
 exports.me = function(req, res) {
-  res.json(req.user);
+  res.json(req.project);
 };

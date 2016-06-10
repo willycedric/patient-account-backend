@@ -33,6 +33,22 @@ var projectUsers = [
               name:"hcp01",
               role:"practician"
 
+            },
+            {
+              login:"vvredwing+op01@gmail.com",
+              password:"vol+2016",
+              dateOfBirth:"12/13/1945",
+              name:"op01",
+              role:"operator"
+
+            },
+            {
+              login:"vvredwing+s01@gmail.com",
+              password:"vol+2016",
+              dateOfBirth:"12/13/1945",
+              name:"s01",
+              role:"superuser"
+
             }
 
           ]     
