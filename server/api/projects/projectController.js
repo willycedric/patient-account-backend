@@ -15,7 +15,25 @@ exports.params = function(req, res, next, id) {
       }
     });
 };
+exports.isUser = function (req, res, next){
+  if(req.body.role){
+    req.isUser = true;
+    next();
+  }else{
+    req.isUser = false;
+    next();
+  }
+};
 
+exports.isUserDeletion = function (req, res, next){
+  if (req.param('accoundID')){
+    req.isUserDeletion=true;
+    next();
+  }else{
+    req.isUserDeletion=false;
+    next();
+  }
+};
 exports.get = function(req, res, next) {
   logger.log('get from the projectController');
    Project.find({}, function(err, projects) {
@@ -59,31 +77,81 @@ exports.put = function(req, res, next) {
 };
 
 exports.post = function(req, res, next) {
-  var newProject = new Project(req.body);
-  Project.findOne({name:newProject.name}, function(err, elt){
-    if(err){
-      return next(err);
-    }else if(!elt){
-      newProject.save(function(err,project){
+  if(!req.isUser){
+      var newProject = new Project(req.body);
+      Project.findOne({name:newProject.name}, function(err, elt){
         if(err){
           return next(err);
-        }
-        res.json({project:project});
-      })
-    }else{
+        }else if(!elt){
+          newProject.save(function(err,project){
+            if(err){
+              return next(err);
+            }
+            res.json({project:project});
+          })
+        }else{
 
-    }
-  });
+        }
+      });
+  }else{
+      var projectName = req.body.attachedProjectName;
+      delete req.body.attachedProjectName;
+      var newAccount = req.body;
+      console.log("New user ", JSON.stringify(req.body));
+      Project.findOne({name:projectName}, function (err, project){
+          if(err){
+              return  next(err);
+          }else{
+                  project.accounts.push(newAccount);
+                  project.save(function(err,elt){
+                    if(err){
+                      return next(err);
+                    }else{
+                      console.log(JSON.stringify)
+                      res.json({project:elt});
+                    }
+                  });
+          }
+      });
+  }  
+};
+
+exports.addUser = function (req,res,next){
+  //var user = req.body.user;
+  console.log("New user ", JSON.stringify(req.body.user));  
 };
 
 exports.delete = function(req, res, next) {
-  Project.findByIdAndRemove(req.param('id'), function(err,removed){
-    if(err){
-      next(err);
+    if(req.isUserDeletion){
+          Project.findByIdAndRemove(req.param('id'), function(err,removed){
+        if(err){
+          next(err);
+        }else{
+          res.json(removed);
+        }
+      });
     }else{
-      res.json(removed);
+       //console.log( req.param('projectID'), req.param('accountID'));
+       Project.findById(req.param('projectID'), function(err, project){
+          if(err){
+              next(err);
+          }else{
+            //project.accounts(req.param('accountID')).remove();
+            project.accounts.forEach(function(account, key){
+                if(account._id == req.param('accountID')){
+                  project.accounts[key].remove();
+                }
+            });
+            project.save(function(err, proj){
+                if(err){
+                  next(err);
+                }else{
+                  res.json({project:proj});
+                }
+            });
+          }
+       });
     }
-  });
 };
 
 exports.me = function(req, res) {

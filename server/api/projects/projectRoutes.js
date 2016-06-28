@@ -6,8 +6,8 @@ var controller = require('./projectController');
 router.param('id', controller.params);
 router.route('/')
   .get(controller.get)
-  .post(controller.post)
-  .delete(controller.delete);
+  .post(controller.isUser,controller.post)
+  .delete(controller.isUserDeletion,controller.delete);
 
 router.route('/:id')
   .get(controller.getOne)
