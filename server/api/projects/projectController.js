@@ -116,10 +116,6 @@ exports.post = function(req, res, next) {
   }  
 };
 
-exports.addUser = function (req,res,next){
-  //var user = req.body.user;
-  console.log("New user ", JSON.stringify(req.body.user));  
-};
 
 exports.delete = function(req, res, next) {
     if(req.isUserDeletion){
