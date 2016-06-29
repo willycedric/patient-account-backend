@@ -1,6 +1,14 @@
 var Project = require('./projectModel');
 var _ = require('lodash');
 var logger = require('../../util/logger');
+/**
+ * [params description]
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @param  {[type]}   id   [description]
+ * @return {[type]}        [description]
+ */
 exports.params = function(req, res, next, id) {
     logger.log("Params function from the projectController");
     Project.findById(id,function(err,project) {
@@ -15,18 +23,54 @@ exports.params = function(req, res, next, id) {
       }
     });
 };
+/**
+ * [isUser description]
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @return {Boolean}       [description]
+ */
 exports.isUser = function (req, res, next){
+  console.log('incoming post request');
+  req.isAccountAlreadyTaken= false;
+  req.isProjectAlreadyExist = false;
   if(req.body.role){
     req.isUser = true;
-    next();
+    Project.findOne({name: req.body.attachedProjectName}, function(err, project){
+        if(err){
+          next(err);
+        }else{
+            project.accounts.forEach(function(account, key){
+                if((account.login == req.body.login) && (account.role == req.body.role)){
+                    req.isAccountAlreadyTaken= true;
+                }
+            });
+            next();    
+        }
+          
+    });
   }else{
-    req.isUser = false;
+    req.isUser = !req.isUser;
+    Project.findOne({name:req.body.name}, function(err,project){
+        if(err){
+          next(err);
+        }else if(project){
+          req.isProjectAlreadyExist = !req.isProjectAlreadyExist;
+        }
+    });
     next();
   }
 };
 
+/**
+ * [isUserDeletion description]
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @return {Boolean}       [description]
+ */
 exports.isUserDeletion = function (req, res, next){
-  if (req.param('accoundID')){
+  if (req.param('accountID')){
     req.isUserDeletion=true;
     next();
   }else{
@@ -34,8 +78,14 @@ exports.isUserDeletion = function (req, res, next){
     next();
   }
 };
+/**
+ * [get description]
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @return {[type]}        [description]
+ */
 exports.get = function(req, res, next) {
-  logger.log('get from the projectController');
    Project.find({}, function(err, projects) {
     var projectMap = {};
 
@@ -47,18 +97,23 @@ exports.get = function(req, res, next) {
 };
 
 exports.getOne = function(req, res, next) {
-  logger.log("getOne function from the projectController");
   var project = req.project;
   res.json(project);
 };
 
+/**
+ * [put description]
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @return {[type]}        [description]
+ */
 exports.put = function(req, res, next) {
   var project = req.project;
   project.accounts = req.body.accounts;
   //_.merge(project, update);
     logger.log(JSON.stringify(project));
 
-  logger.log("Je suis a ce niveau");
   Project.findOne({name:project.name},function(err,elt){
       if(err){
         return next(err);
@@ -75,48 +130,73 @@ exports.put = function(req, res, next) {
       }
   });
 };
-
+/**
+ * [post description]
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @return {[type]}        [description]
+ */
 exports.post = function(req, res, next) {
   if(!req.isUser){
-      var newProject = new Project(req.body);
-      Project.findOne({name:newProject.name}, function(err, elt){
-        if(err){
-          return next(err);
-        }else if(!elt){
-          newProject.save(function(err,project){
-            if(err){
-              return next(err);
-            }
-            res.json({project:project});
-          })
-        }else{
-
-        }
-      });
-  }else{
-      var projectName = req.body.attachedProjectName;
-      delete req.body.attachedProjectName;
-      var newAccount = req.body;
-      console.log("New user ", JSON.stringify(req.body));
-      Project.findOne({name:projectName}, function (err, project){
+    if(req.isProjectAlreadyExist){
+      res.send("The project "+req.body.name+" already exist !")
+    }else{
+        var newProject = new Project(req.body);
+        Project.findOne({name:newProject.name}, function(err, elt){
           if(err){
-              return  next(err);
+            return next(err);
+          }else if(!elt){
+            newProject.save(function(err,project){
+              if(err){
+                return next(err);
+              }
+              res.json({project:project});
+            })
           }else{
-                  project.accounts.push(newAccount);
-                  project.save(function(err,elt){
-                    if(err){
-                      return next(err);
-                    }else{
-                      console.log(JSON.stringify)
-                      res.json({project:elt});
-                    }
-                  });
+
           }
-      });
+        });
+    }
+      
+  }else{
+
+    if(req.isAccountAlreadyTaken){
+      res.send("The login "+req.body.login+" has already been taken!");
+    }else{
+            console.log("req.isAccountAlreadyTaken -> ",req.isAccountAlreadyTaken);
+
+           var projectName = req.body.attachedProjectName;
+          delete req.body.attachedProjectName;
+          var newAccount = req.body;
+          //console.log("   ", JSON.stringify(req.body));
+          Project.findOne({name:projectName}, function (err, project){
+              if(err){
+                  return  next(err);
+              }else{
+                      project.accounts.push(newAccount);
+                      project.save(function(err,elt){
+                        if(err){
+                          return next(err);
+                        }else{
+                          console.log(JSON.stringify)
+                          res.json({project:elt});
+                        }
+                      });
+              }
+          });
+    }
+         
   }  
 };
 
-
+/**
+ * [delete description]
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @return {[type]}        [description]
+ */
 exports.delete = function(req, res, next) {
     if(req.isUserDeletion){
           Project.findByIdAndRemove(req.param('id'), function(err,removed){
@@ -149,7 +229,12 @@ exports.delete = function(req, res, next) {
        });
     }
 };
-
+/**
+ * [me description]
+ * @param  {[type]} req [description]
+ * @param  {[type]} res [description]
+ * @return {[type]}     [description]
+ */
 exports.me = function(req, res) {
   res.json(req.project);
 };

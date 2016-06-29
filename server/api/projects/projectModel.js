@@ -3,7 +3,8 @@ var Schema = mongoose.Schema;
 var accounts = new Schema({
     login:{
       type: String,
-      required: true
+      required: true,
+      lowercase:true
     },
     password:{
       type:String,
@@ -14,18 +15,21 @@ var accounts = new Schema({
     },
     name:{
       type: String,
-      required:true
+      required:true,
+      lowercase:true
     },
     role:{
       type:String,
-      default:'patient'
+      default:'patient',
+      lowercase:true
     }
 });
 var projectSchema = new Schema({
 	name:{
 		type:String,
 		required:true,
-		unique:true
+		unique:true,
+    uppercase:true
 	},
   accounts:[accounts]
 });
