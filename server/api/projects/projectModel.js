@@ -24,6 +24,12 @@ var accounts = new Schema({
       lowercase:true
     }
 });
+
+accounts.pre('save',function(next){
+  //console.log([].slice.call(this,0));
+  console.log(this['login']);
+  next()
+})
 var projectSchema = new Schema({
 	name:{
 		type:String,
@@ -33,4 +39,15 @@ var projectSchema = new Schema({
 	},
   accounts:[accounts]
 });
+
+/**
+ * [isAccountAlreadyTaken description]
+ * @param  {[type]}  newAccount [description]
+ * @return {Boolean}            [description]
+ */
+projectSchema.statics.isAccountAlreadyTaken = function isAccountAlreadyTaken(newAccount){ //statics allow for defining functions that exist directly on your model
+  
+  return false;
+  
+};
 module.exports = mongoose.model('project', projectSchema);

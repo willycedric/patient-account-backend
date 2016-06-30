@@ -31,7 +31,6 @@ exports.params = function(req, res, next, id) {
  * @return {Boolean}       [description]
  */
 exports.isUser = function (req, res, next){
-  console.log('incoming post request');
   req.isAccountAlreadyTaken= false;
   req.isProjectAlreadyExist = false;
   if(req.body.role){
@@ -39,22 +38,19 @@ exports.isUser = function (req, res, next){
     Project.findOne({name: req.body.attachedProjectName}, function(err, project){
         if(err){
           next(err);
-        }else{
-            project.accounts.forEach(function(account, key){
-                if((account.login == req.body.login) && (account.role == req.body.role)){
-                    req.isAccountAlreadyTaken= true;
-                }
-            });
+        }else if(Project.isAccountAlreadyTaken(req.body)) {
+            req.isAccountAlreadyTaken=true;            
             next();    
+        }else{
+          next();
         }
-          
     });
   }else{
     req.isUser = !req.isUser;
     Project.findOne({name:req.body.name}, function(err,project){
         if(err){
           next(err);
-        }else if(project){
+        }else if(Project.isAccountAlreadyTaken(req.body)){
           req.isProjectAlreadyExist = !req.isProjectAlreadyExist;
         }
     });
@@ -164,8 +160,6 @@ exports.post = function(req, res, next) {
     if(req.isAccountAlreadyTaken){
       res.send("The login "+req.body.login+" has already been taken!");
     }else{
-            console.log("req.isAccountAlreadyTaken -> ",req.isAccountAlreadyTaken);
-
            var projectName = req.body.attachedProjectName;
           delete req.body.attachedProjectName;
           var newAccount = req.body;
@@ -198,8 +192,8 @@ exports.post = function(req, res, next) {
  * @return {[type]}        [description]
  */
 exports.delete = function(req, res, next) {
-    if(req.isUserDeletion){
-          Project.findByIdAndRemove(req.param('id'), function(err,removed){
+    if(!req.isUserDeletion){
+          Project.findByIdAndRemove(req.param('projectID'), function(err,removed){
         if(err){
           next(err);
         }else{
@@ -207,17 +201,11 @@ exports.delete = function(req, res, next) {
         }
       });
     }else{
-       //console.log( req.param('projectID'), req.param('accountID'));
        Project.findById(req.param('projectID'), function(err, project){
           if(err){
               next(err);
           }else{
-            //project.accounts(req.param('accountID')).remove();
-            project.accounts.forEach(function(account, key){
-                if(account._id == req.param('accountID')){
-                  project.accounts[key].remove();
-                }
-            });
+            project.accounts.id(req.param('accountID')).remove();
             project.save(function(err, proj){
                 if(err){
                   next(err);
