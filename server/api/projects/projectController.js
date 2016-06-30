@@ -17,8 +17,21 @@ exports.params = function(req, res, next, id) {
 };
 exports.isUser = function (req, res, next){
   if(req.body.role){
-    req.isUser = true;
-    next();
+      Project.findOne({name: req.body.attachedProjectName}, function(err, project){
+        if(err){
+            next(err);
+        }else{
+                 project.accounts.forEach(function(account, key){
+                      if( req.body.login == account.login){
+                          req.isLoginTaken = true;
+                      }else{
+                        req.isLoginTaken=false;
+                      }
+                });
+        }
+      });
+      req.isUser = true;
+      next();
   }else{
     req.isUser = false;
     next();
@@ -26,7 +39,7 @@ exports.isUser = function (req, res, next){
 };
 
 exports.isUserDeletion = function (req, res, next){
-  if (req.param('accoundID')){
+  if (req.param('accountID')){
     req.isUserDeletion=true;
     next();
   }else{
@@ -35,7 +48,6 @@ exports.isUserDeletion = function (req, res, next){
   }
 };
 exports.get = function(req, res, next) {
-  logger.log('get from the projectController');
    Project.find({}, function(err, projects) {
     var projectMap = {};
 
@@ -47,7 +59,6 @@ exports.get = function(req, res, next) {
 };
 
 exports.getOne = function(req, res, next) {
-  logger.log("getOne function from the projectController");
   var project = req.project;
   res.json(project);
 };
@@ -58,7 +69,6 @@ exports.put = function(req, res, next) {
   //_.merge(project, update);
     logger.log(JSON.stringify(project));
 
-  logger.log("Je suis a ce niveau");
   Project.findOne({name:project.name},function(err,elt){
       if(err){
         return next(err);
@@ -97,11 +107,11 @@ exports.post = function(req, res, next) {
       var projectName = req.body.attachedProjectName;
       delete req.body.attachedProjectName;
       var newAccount = req.body;
-      console.log("New user ", JSON.stringify(req.body));
       Project.findOne({name:projectName}, function (err, project){
           if(err){
               return  next(err);
-          }else{
+          }else if (!req.isLoginTaken){                 
+
                   project.accounts.push(newAccount);
                   project.save(function(err,elt){
                     if(err){
@@ -111,14 +121,16 @@ exports.post = function(req, res, next) {
                       res.json({project:elt});
                     }
                   });
-          }
+        }else{
+                res.status(205).send("The login "+newAccount.login+" it's already taken");
+        }
       });
   }  
 };
 
 
 exports.delete = function(req, res, next) {
-    if(req.isUserDeletion){
+    if(!req.isUserDeletion){
           Project.findByIdAndRemove(req.param('id'), function(err,removed){
         if(err){
           next(err);
