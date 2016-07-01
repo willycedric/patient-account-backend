@@ -1,6 +1,11 @@
 var Project = require('./projectModel');
 var _ = require('lodash');
 var logger = require('../../util/logger');
+
+var errorMessageName = {
+  "VALIDATOR":"ValidatorError"
+};
+
 /**
  * [params description]
  * @param  {[type]}   req  [description]
@@ -35,25 +40,9 @@ exports.isUser = function (req, res, next){
   req.isProjectAlreadyExist = false;
   if(req.body.role){
     req.isUser = true;
-    Project.findOne({name: req.body.attachedProjectName}, function(err, project){
-        if(err){
-          next(err);
-        }else if(Project.isAccountAlreadyTaken(req.body)) {
-            req.isAccountAlreadyTaken=true;            
-            next();    
-        }else{
-          next();
-        }
-    });
+    next();
   }else{
-    req.isUser = !req.isUser;
-    Project.findOne({name:req.body.name}, function(err,project){
-        if(err){
-          next(err);
-        }else if(Project.isAccountAlreadyTaken(req.body)){
-          req.isProjectAlreadyExist = !req.isProjectAlreadyExist;
-        }
-    });
+    req.isUser = false;
     next();
   }
 };
@@ -135,9 +124,6 @@ exports.put = function(req, res, next) {
  */
 exports.post = function(req, res, next) {
   if(!req.isUser){
-    if(req.isProjectAlreadyExist){
-      res.send("The project "+req.body.name+" already exist !")
-    }else{
         var newProject = new Project(req.body);
         Project.findOne({name:newProject.name}, function(err, elt){
           if(err){
@@ -152,18 +138,11 @@ exports.post = function(req, res, next) {
           }else{
 
           }
-        });
-    }
-      
+        });      
   }else{
-
-    if(req.isAccountAlreadyTaken){
-      res.send("The login "+req.body.login+" has already been taken!");
-    }else{
-           var projectName = req.body.attachedProjectName;
+          var projectName = req.body.attachedProjectName;
           delete req.body.attachedProjectName;
           var newAccount = req.body;
-          //console.log("   ", JSON.stringify(req.body));
           Project.findOne({name:projectName}, function (err, project){
               if(err){
                   return  next(err);
@@ -171,17 +150,22 @@ exports.post = function(req, res, next) {
                       project.accounts.push(newAccount);
                       project.save(function(err,elt){
                         if(err){
-                          return next(err);
+                          var errorMessage=[];
+                          if(err.errors){
+                              for (var errorName in err.errors){
+                                errorMessage.push(err.errors[errorName].message);
+                              }// end for 
+                              res.status(202).json(errorMessage);
+                          }else{
+                             return next(err);
+                          }
                         }else{
-                          console.log(JSON.stringify)
                           res.json({project:elt});
                         }
                       });
               }
           });
     }
-         
-  }  
 };
 
 /**

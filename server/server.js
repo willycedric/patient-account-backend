@@ -19,6 +19,7 @@ app.use('/api', api);
 //app.use('/auth', auth);
 // set up global error handling
 
+//Error handling middleware
 app.use(function(err, req, res, next) {
   // if error thrown from jwt validation check
   if (err.name === 'UnauthorizedError') {
@@ -26,8 +27,8 @@ app.use(function(err, req, res, next) {
     return;
   }
 
-  logger.error(err.stack);
-  res.status(500).send('Oops');
+  logger.error(err);
+  res.status(500).send('internal server error');
 });
 
 // export the app for testing
