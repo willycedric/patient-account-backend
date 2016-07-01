@@ -2,8 +2,15 @@ var Project = require('./projectModel');
 var _ = require('lodash');
 var logger = require('../../util/logger');
 
-var errorMessageName = {
-  "VALIDATOR":"ValidatorError"
+//Variable and method used to check if a login has already been used 
+var isTaken=false;
+var isLoginAlreadyUsed = function(accounts,login){
+  accounts.forEach(function(account, key){
+      if(account.login == login){
+          isTaken = true;
+    }
+  });
+  return isTaken;
 };
 
 /**
@@ -94,17 +101,28 @@ exports.getOne = function(req, res, next) {
  * @return {[type]}        [description]
  */
 exports.put = function(req, res, next) {
-  var project = req.project;
-  project.accounts = req.body.accounts;
-  //_.merge(project, update);
-    logger.log(JSON.stringify(project));
 
-  Project.findOne({name:project.name},function(err,elt){
+  //project.accounts = req.body.accounts;
+  //_.merge(project, update);
+   // logger.log(JSON.stringify(project));
+
+  Project.findOne({name:req.project.name},function(err,project){
       if(err){
         return next(err);
-      }else if(elt){
+      }else if(project){
+         //console.log(project.accounts.id(req.body._id));
+         console.log()
           project.save(function(err, saved) {
             if (err) {
+               var errorMessage=[];
+                if(err.errors){
+                    for (var errorName in err.errors){
+                      errorMessage.push(err.errors[errorName].message);
+                    }// end for 
+                    res.status(202).json(errorMessage);
+                }else{
+                    res.json(saved);
+                }
               next(err);
             } else {
               res.json(saved);
@@ -136,7 +154,7 @@ exports.post = function(req, res, next) {
               res.json({project:project});
             })
           }else{
-
+              res.status(202).send("The name " +req.body.name+" is already taken !");
           }
         });      
   }else{
@@ -147,22 +165,28 @@ exports.post = function(req, res, next) {
               if(err){
                   return  next(err);
               }else{
-                      project.accounts.push(newAccount);
-                      project.save(function(err,elt){
-                        if(err){
-                          var errorMessage=[];
-                          if(err.errors){
-                              for (var errorName in err.errors){
-                                errorMessage.push(err.errors[errorName].message);
-                              }// end for 
-                              res.status(202).json(errorMessage);
-                          }else{
-                             return next(err);
-                          }
-                        }else{
-                          res.json({project:elt});
-                        }
-                      });
+                      
+                     if(isLoginAlreadyUsed(project.accounts, newAccount.login)){
+                        res.status(202).send('The login '+newAccount.login+" is already taken !");
+                     }else{
+                          project.accounts.push(newAccount);
+                          project.save(function(err,elt){
+                            if(err){
+                              var errorMessage=[];
+                              if(err.errors){
+                                  for (var errorName in err.errors){
+                                    errorMessage.push(err.errors[errorName].message);
+                                  }// end for 
+                                  res.status(202).json(errorMessage);
+                              }else{
+                                 return next(err);
+                              }
+                            }else{
+                              res.json({project:elt});
+                            }
+                          });
+                   }
+                      
               }
           });
     }
@@ -189,6 +213,7 @@ exports.delete = function(req, res, next) {
           if(err){
               next(err);
           }else{
+            //console.log("Inside the delete function ", JSON.stringify(project.accounts.id(req.param('accountID'))));
             project.accounts.id(req.param('accountID')).remove();
             project.save(function(err, proj){
                 if(err){
@@ -210,3 +235,5 @@ exports.delete = function(req, res, next) {
 exports.me = function(req, res) {
   res.json(req.project);
 };
+
+
