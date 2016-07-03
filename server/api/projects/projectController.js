@@ -3,8 +3,9 @@ var _ = require('lodash');
 var logger = require('../../util/logger');
 
 //Variable and method used to check if a login has already been used 
-var isTaken=false;
-var isLoginAlreadyUsed = function(accounts,login){
+
+var isLoginAlreadyUsed = function(accounts,login,bool){
+  var isTaken=bool;
   accounts.forEach(function(account, key){
       if(account.login == login){
           isTaken = true;
@@ -101,29 +102,23 @@ exports.getOne = function(req, res, next) {
  * @return {[type]}        [description]
  */
 exports.put = function(req, res, next) {
-
-  //project.accounts = req.body.accounts;
-  //_.merge(project, update);
-   // logger.log(JSON.stringify(project));
-
   Project.findOne({name:req.project.name},function(err,project){
       if(err){
         return next(err);
       }else if(project){
-         //console.log(project.accounts.id(req.body._id));
-         console.log()
+          _.merge( project.accounts.id(req.body.account._id), req.body.account);
           project.save(function(err, saved) {
             if (err) {
                var errorMessage=[];
                 if(err.errors){
+                    logger.error("There are some errors");
                     for (var errorName in err.errors){
                       errorMessage.push(err.errors[errorName].message);
                     }// end for 
                     res.status(202).json(errorMessage);
                 }else{
-                    res.json(saved);
+                    next(err);
                 }
-              next(err);
             } else {
               res.json(saved);
             }
@@ -141,6 +136,8 @@ exports.put = function(req, res, next) {
  * @return {[type]}        [description]
  */
 exports.post = function(req, res, next) {
+//list of errors message which will be sent back to the client once the request has been processed
+ var errorMessage=[];
   if(!req.isUser){
         var newProject = new Project(req.body);
         Project.findOne({name:newProject.name}, function(err, elt){
@@ -154,7 +151,8 @@ exports.post = function(req, res, next) {
               res.json({project:project});
             })
           }else{
-              res.status(202).send("The name " +req.body.name+" is already taken !");
+              errorMessage.push("The name " +req.body.name+" is already used!")
+              res.status(202).json({errorMessage:errorMessage});
           }
         });      
   }else{
@@ -166,18 +164,18 @@ exports.post = function(req, res, next) {
                   return  next(err);
               }else{
                       
-                     if(isLoginAlreadyUsed(project.accounts, newAccount.login)){
-                        res.status(202).send('The login '+newAccount.login+" is already taken !");
+                     if(isLoginAlreadyUsed(project.accounts, newAccount.login,false)){
+                        errorMessage.push("The login "+newAccount.login+" is already used!")
+                        res.status(202).json(errorMessage);
                      }else{
                           project.accounts.push(newAccount);
                           project.save(function(err,elt){
                             if(err){
-                              var errorMessage=[];
                               if(err.errors){
                                   for (var errorName in err.errors){
-                                    errorMessage.push(err.errors[errorName].message);
+                                   errorMessage.push(err.errors[errorName].message);
                                   }// end for 
-                                  res.status(202).json(errorMessage);
+                                  res.status(202).json({errorMessage:errorMessage});
                               }else{
                                  return next(err);
                               }
