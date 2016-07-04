@@ -1,12 +1,7 @@
 var Project = require('./projectModel');
 var _ = require('lodash');
 var logger = require('../../util/logger');
-
-//Socket io for live update on user creation, update and delete
-var io = require('socket.io')(require('../../server'));
-
 //Variable and method used to check if a login has already been used 
-
 var isLoginAlreadyUsed = function(accounts,login,bool){
   var isTaken=bool;
   accounts.forEach(function(account, key){
@@ -181,11 +176,6 @@ exports.post = function(req, res, next) {
                                  return next(err);
                               }
                             }else{
-                              io.on('connection', function (socket){
-                               logger.log('New connection detected');
-                                socket.emit('saved',{save:true});
-                                logger.log('New saved message has been emitted');
-                              });
                               res.json({project:elt});
                             }
                           });
