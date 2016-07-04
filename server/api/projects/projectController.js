@@ -2,6 +2,9 @@ var Project = require('./projectModel');
 var _ = require('lodash');
 var logger = require('../../util/logger');
 
+//Socket io for live update on user creation, update and delete
+var io = require('socket.io')(require('../../server'));
+
 //Variable and method used to check if a login has already been used 
 
 var isLoginAlreadyUsed = function(accounts,login,bool){
@@ -162,8 +165,7 @@ exports.post = function(req, res, next) {
           Project.findOne({name:projectName}, function (err, project){
               if(err){
                   return  next(err);
-              }else{
-                      
+              }else{                      
                      if(isLoginAlreadyUsed(project.accounts, newAccount.login,false)){
                         errorMessage.push("The login "+newAccount.login+" is already used!")
                         res.status(202).json(errorMessage);
