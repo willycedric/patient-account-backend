@@ -6,7 +6,7 @@ var logger = require('./util/logger');
 
 //var auth = require('./auth/routes');
 // db.url is different depending on NODE_ENV
-require('mongoose').connect(config.db.home);
+require('mongoose').connect(config.db.voluntis);
 if (config.seed) {
   require('./util/seed');
 }else{

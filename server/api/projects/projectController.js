@@ -114,7 +114,6 @@ exports.put = function(req, res, next) {
             if (err) {
                var errorMessage=[];
                 if(err.errors){
-                    logger.error("There are some errors");
                     for (var errorName in err.errors){
                       errorMessage.push(err.errors[errorName].message);
                     }// end for 
@@ -182,6 +181,11 @@ exports.post = function(req, res, next) {
                                  return next(err);
                               }
                             }else{
+                              io.on('connection', function (socket){
+                               logger.log('New connection detected');
+                                socket.emit('saved',{save:true});
+                                logger.log('New saved message has been emitted');
+                              });
                               res.json({project:elt});
                             }
                           });
