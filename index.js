@@ -8,5 +8,10 @@
 var config = require('./server/config/config');
 var app = require('./server/server');
 var logger = require('./server/util/logger');
- app.listen(config.port);
+ var server = app.listen(config.port);
+ var io = require('socket.io')(server);
+ var api = require('./server/api/api')();
+ console.log(typeof api);
+app.use('/api', api);
 logger.log('listening on http://localhost:' + config.port);
+module.exports = io;
