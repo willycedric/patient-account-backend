@@ -13,10 +13,7 @@ var isLoginAlreadyUsed = function(accounts,login,bool){
   return isTaken;
 };
 
-module.exports = function (){
-  /*io.on('connect', function(socket){
-    console.log('a new connexion has been established\n');
-  });*/
+module.exports = function (io){ 
   return {
     params: function(req, res, next, id) {
               logger.log("Params function from the projectController");
@@ -68,6 +65,7 @@ module.exports = function (){
             },
 
     put :function(req, res, next) {
+            
             Project.findOne({name:req.project.name},function(err,project){
                 if(err){
                   return next(err);
@@ -95,6 +93,7 @@ module.exports = function (){
           },
 
     post :function(req, res, next) {
+
               //list of errors message which will be sent back to the client once the request has been processed
                var errorMessage=[];
                 if(!req.isUser){
@@ -138,6 +137,7 @@ module.exports = function (){
                                                return next(err);
                                             }
                                           }else{
+                                            //sending update event to the client
                                             res.json({project:elt});
                                           }
                                         });

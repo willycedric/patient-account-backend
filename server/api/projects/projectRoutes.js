@@ -8,8 +8,8 @@ var logger = require('../../util/logger');
 
 //module.exports = router;
 
-module.exports = function (){
-	var controller = require('./projectController')();
+module.exports = function (io){
+	var controller = require('./projectController')(io);
 	router.param('id', controller.params);
 	router.route('/')
 	  .get(controller.get)

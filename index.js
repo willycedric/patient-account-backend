@@ -8,10 +8,11 @@
 var config = require('./server/config/config');
 var app = require('./server/server');
 var logger = require('./server/util/logger');
+var router = require('express').Router();
  var server = app.listen(config.port);
  var io = require('socket.io')(server);
- var api = require('./server/api/api')();
- console.log(typeof api);
-app.use('/api', api);
+ var api = require('./server/api/api');
+
+app.use('/api',api(io));
+ //app.use('/api', router.use('/project', require('./server/api/projects/projectRoutes')()));
 logger.log('listening on http://localhost:' + config.port);
-module.exports = io;
