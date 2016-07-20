@@ -8,15 +8,5 @@
 var config = require('./server/config/config');
 var app = require('./server/server');
 var logger = require('./server/util/logger');
-var server = require('http').Server(app);
-var io =require('socket.io')(server);
-var server = app.listen(config.port);
-
-var io =require('socket.io')(server);
-
-io.on('connect', function(socket){
-	console.log('a client is successfully connected');
-});
+ app.listen(config.port);
 logger.log('listening on http://localhost:' + config.port);
-
-

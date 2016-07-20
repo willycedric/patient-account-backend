@@ -1,6 +1,6 @@
 var Project = require('./projectModel');
 var _ = require('lodash');
-var logger = require('../../util/logger');
+var logger = require('../../util/./logger');
 //Variable and method used to check if a login has already been used 
 var isLoginAlreadyUsed = function(accounts,login,bool){
   var isTaken=bool;
